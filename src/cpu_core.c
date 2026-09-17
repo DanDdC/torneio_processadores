@@ -15,3 +15,19 @@ void fetch(CPU *cpu, uint8_t *op, uint8_t *a, uint8_t *b) {
     *b  = cpu->mem[cpu->pc + 2];
     cpu->pc += 3;
 }
+
+static void decode_execute(CPU *cpu, uint8_t op, uint8_t a, uint8_t b) {
+    if (decode_execute_dataflow(cpu, op, a, b)) return;
+    if (decode_execute_arith(cpu, op, a, b)) return;
+    if (decode_execute_control(cpu, op, a, b)) return;
+}
+
+void run(CPU *cpu) {
+    while (cpu->running && cpu->pc < MEM_SIZE) {
+        uint8_t op, a, b;
+        cpu->ciclo++;
+        fetch(cpu, &op, &a, &b);
+        decode_execute(cpu, op, a, b);
+        trace(cpu, op, a, b);
+    }
+}
